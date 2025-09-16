@@ -13,17 +13,14 @@ import lombok.NoArgsConstructor;
 public class Psicologo {
 
     @Id
-    @Column(name = "idespecialistas")
+    @Column(name = "idpsicologos")
     private Long idPsicologo;
     @Column(name = "telefonoe")
     private String telefono;
-//    private String servicios;
-//    @Column(name = "nombre_usr")
-//    private String nombreUsr;
-//    @Column(name = "clave_acceso")
-//    private String claveAcceso;
-//    @Column(name = "estadoe")
-//    private String estado;
+    private String servicios;
+
+    @Column(name = "estadoe")
+    private String estado;
 
 //    @OneToMany(mappedBy = "especialista")
 //    private List<Cita> citas;
