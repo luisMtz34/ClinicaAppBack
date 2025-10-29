@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import java.sql.Time;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -24,12 +25,12 @@ public class Cita {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int idCitas;
     private LocalDate fecha;
-    private Time hora;
+    private LocalTime hora;
     private String consultorio;
     private String tipo;
     private String observaciones;
     @Enumerated(EnumType.STRING)
-    private Estado estado;
+    private Estado estado = Estado.ACTIVO;
 
     @ManyToOne
     @JoinColumn(name = "psicologo_idpsicologo")

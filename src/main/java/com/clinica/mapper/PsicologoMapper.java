@@ -11,13 +11,13 @@ public class PsicologoMapper {
     public static Psicologo toEntity(PsicologoRequest psicologoRequest, User user){
         Psicologo psicologo = new Psicologo();
         psicologo.setTelefono(psicologoRequest.getTelefono());
-        psicologo.setTelefono(psicologoRequest.getTelefono());
-        psicologo.setServicios(psicologo.getServicios());
         psicologo.setComision(psicologoRequest.getComision());
         psicologo.setEstado(Estado.ACTIVO);
-        psicologo.setUser(user);
+        psicologo.setUser(user); // asigna el user aquí
         return psicologo;
     }
+
+
 
     public static PsicologoResponse toResponse(Psicologo entity) {
         PsicologoResponse response = new PsicologoResponse();

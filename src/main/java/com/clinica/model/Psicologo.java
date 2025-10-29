@@ -16,6 +16,7 @@ public class Psicologo {
 
     @Id
     @Column(name = "idpsicologo")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idPsicologo;
     private String telefono;
     private String servicios;
@@ -27,7 +28,7 @@ public class Psicologo {
     private List<Cita> citas;
 
     @OneToOne
-    @MapsId
+    @JoinColumn(name = "user_id")
     private User user;
 
 }

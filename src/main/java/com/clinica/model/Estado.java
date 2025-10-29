@@ -5,5 +5,7 @@ public enum Estado {
     INACTIVO,
     PENDIENTE,
     NO_ASISTIO,
-    ATENDIDA
+    ATENDIDA,
+    CONFIRMADA,
+    CANCELADA
 }

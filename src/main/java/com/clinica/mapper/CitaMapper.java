@@ -13,14 +13,16 @@ public class CitaMapper {
         cita.setConsultorio(dto.getConsultorio());
         cita.setTipo(dto.getTipo());
         cita.setObservaciones(dto.getObservaciones());
-        cita.setEstado(dto.getEstado());
         cita.setPsicologo(psicologo);
         cita.setPaciente(paciente);
         cita.setSecretaria(secretaria);
+
+
+
         return cita;
     }
 
-    public static CitaResponseDTO toResponseDTO(Cita cita) {
+    public static CitaResponseDTO toResponse(Cita cita) {
         CitaResponseDTO dto = new CitaResponseDTO();
 
         dto.setIdCitas(cita.getIdCitas());
@@ -29,13 +31,17 @@ public class CitaMapper {
         dto.setConsultorio(cita.getConsultorio());
         dto.setTipo(cita.getTipo());
         dto.setObservaciones(cita.getObservaciones());
-        dto.setEstado(cita.getEstado().name());
+        dto.setEstado(cita.getEstado());
 
-        if (cita.getPsicologo() != null && cita.getPsicologo().getUser() != null) {
-            dto.setPsicologoNombre(cita.getPsicologo().getUser().getFullName());
+        if (cita.getPsicologo() != null) {
+            dto.setPsicologoId(cita.getPsicologo().getIdPsicologo()); // 👈 nuevo
+            if (cita.getPsicologo().getUser() != null) {
+                dto.setPsicologoNombre(cita.getPsicologo().getUser().getFullName());
+            }
         }
 
         if (cita.getPaciente() != null) {
+            dto.setPacienteId(cita.getPaciente().getClave()); // 👈 nuevo
             dto.setPacienteNombre(cita.getPaciente().getNombre());
         }
 
@@ -45,5 +51,6 @@ public class CitaMapper {
 
         return dto;
     }
+
 
 }
