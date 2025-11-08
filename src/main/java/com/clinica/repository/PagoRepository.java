@@ -23,6 +23,15 @@ public interface PagoRepository extends JpaRepository<Pago, Integer> {
 
     List<Pago> findByCita(Cita cita);
 
+    @Query("SELECT p FROM Pago p WHERE p.cita.paciente.clave = :clave AND p.tipoPago = 'PENALIZACION' AND p.aplicado = true")
+    List<Pago> findPenalizacionesAplicadasPorPaciente(String clave);
 
+    @Query("SELECT p FROM Pago p " +
+            "WHERE p.cita.paciente.clave = :pacienteClave " +
+            "AND p.tipoPago = :tipo " +
+            "AND p.aplicado = false " +
+            "ORDER BY p.fecha ASC")
+    List<Pago> findPenalizacionesNoAplicadasPorPaciente(@Param("pacienteClave") String pacienteClave,
+                                                        @Param("tipo") TipoPago tipo);
 
 }

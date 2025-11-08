@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -102,68 +103,108 @@ public class CitaService {
 
     }
 
+
     public CitaResponseDTO cambiarEstadoCita(int citaId, Estado nuevoEstado) {
         Cita cita = citaRepository.findByIdWithPagos(citaId)
                 .orElseThrow(() -> new CitaNotFoundException("Cita no encontrada"));
 
-        // 🚫 Si ya fue atendida o cancelada, no se puede cambiar nuevamente
         if (cita.getEstado() == Estado.ATENDIDA || cita.getEstado() == Estado.CANCELADA || cita.getEstado() == Estado.NO_ASISTIO) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "No se puede cambiar el estado de una cita ya atendida o cancelada");
         }
 
-        // Guardamos el estado nuevo
         cita.setEstado(nuevoEstado);
         citaRepository.save(cita);
 
-        // Generar pago solo si la cita fue marcada como ATENDIDA o NO_ASISTIO
-        if (nuevoEstado == Estado.ATENDIDA || nuevoEstado == Estado.NO_ASISTIO) {
-            Pago pago = new Pago();
-            pago.setCita(cita);
-            pago.setFecha(LocalDateTime.now());
-            pago.setAplicado(false);
+        Pago pagoGenerado = null;
 
-            if (nuevoEstado == Estado.ATENDIDA) {
-                // Monto base de la cita
-                double montoBase = calcularMonto(cita);
+        if (nuevoEstado == Estado.ATENDIDA) {
+            double montoBase = calcularMonto(cita);
 
-                // Revisar penalización pendiente
-                Optional<Pago> penalizacionOpt = pagoRepository.findFirstPenalizacionNoAplicada(
-                        cita.getPaciente().getClave(),
-                        TipoPago.PENALIZACION
-                );
+            // Obtener todas las penalizaciones no aplicadas del paciente
+            List<Pago> penalizacionesPendientes = pagoRepository
+                    .findPenalizacionesNoAplicadasPorPaciente(cita.getPaciente().getClave(), TipoPago.PENALIZACION);
 
-                int penalizacion = 0;
-                if (penalizacionOpt.isPresent()) {
-                    Pago penal = penalizacionOpt.get();
-                    penalizacion = penal.getPenalizacion();
-                    penal.setAplicado(true);
-                    pagoRepository.save(penal);
-                }
-
-                pago.setMontoTotal(montoBase + penalizacion);
-                pago.setComisionClinica(cita.getPsicologo().getComision() * montoBase / 100); // solo sobre monto de cita
-                pago.setTipoPago(TipoPago.PAGO_NORMAL);
-                pago.setMotivo("Cita atendida");
-                pago.setObservaciones("Pago normal generado para cita atendida");
-            }
-            else if (nuevoEstado == Estado.NO_ASISTIO) {
-                // Penalización
-                int penal = 200; // ejemplo de penalización fija
-                pago.setPenalizacion(penal);
-                pago.setMontoTotal(penal);
-                pago.setComisionClinica(0);
-                pago.setTipoPago(TipoPago.PENALIZACION);
-                pago.setMotivo("No asistencia");
-                pago.setObservaciones("Penalización por no asistencia");
+            int totalPenalizaciones = 0;
+            for (Pago penal : penalizacionesPendientes) {
+                totalPenalizaciones += penal.getPenalizacion();
+                penal.setAplicado(true);
+                pagoRepository.save(penal);
             }
 
-            pagoRepository.save(pago);
+            // Crear pago normal sumando todas las penalizaciones
+            Pago pagoAtendida = new Pago();
+            pagoAtendida.setCita(cita);
+            pagoAtendida.setFecha(LocalDateTime.now());
+            pagoAtendida.setAplicado(false);
+            pagoAtendida.setMontoTotal(calcularMonto(cita) + totalPenalizaciones);
+            pagoAtendida.setComisionClinica(cita.getPsicologo().getComision() * calcularMonto(cita) / 100);
+            pagoAtendida.setTipoPago(TipoPago.PAGO_NORMAL);
+            pagoAtendida.setMotivo("Cita atendida");
+            pagoAtendida.setObservaciones("Pago normal generado para cita atendida");
+            pagoRepository.save(pagoAtendida);
+        } else if (nuevoEstado == Estado.NO_ASISTIO) {
+            boolean yaExistePenal = cita.getPagos().stream()
+                    .anyMatch(p -> p.getTipoPago() == TipoPago.PENALIZACION);
+
+            if (!yaExistePenal) {
+                Pago pagoNoAsistio = new Pago();
+                pagoNoAsistio.setCita(cita);
+                pagoNoAsistio.setFecha(LocalDateTime.now());
+                pagoNoAsistio.setAplicado(false);
+                pagoNoAsistio.setPenalizacion(200);
+                pagoNoAsistio.setMontoTotal(200);
+                pagoNoAsistio.setComisionClinica(0);
+                pagoNoAsistio.setTipoPago(TipoPago.PENALIZACION);
+                pagoNoAsistio.setMotivo("No asistencia");
+                pagoNoAsistio.setObservaciones("Penalización por no asistencia");
+                pagoRepository.save(pagoNoAsistio);
+
+                pagoGenerado = pagoNoAsistio;
+            }
         }
+
         cita.setPagos(pagoRepository.findByCita(cita));
 
-        return CitaMapper.toResponse(cita);
+        Pago pagoNormal = cita.getPagos().stream()
+                .filter(p -> p.getTipoPago() == TipoPago.PAGO_NORMAL)
+                .max((p1, p2) -> p1.getFecha().compareTo(p2.getFecha()))
+                .orElse(null);
+
+// Asignar al DTO
+        CitaResponseDTO dto = CitaMapper.toResponse(cita);
+        if (pagoNormal != null) {
+            dto.setPagoInicialId(pagoNormal.getIdPagos());
+            dto.setPagoInicialMonto(pagoNormal.getMontoTotal());
+        } else {
+            dto.setPagoInicialId(null);
+            dto.setPagoInicialMonto(0.0);
+        }
+        if (pagoNormal != null) {
+            dto.setPagoInicialId(pagoNormal.getIdPagos());
+            dto.setPagoInicialMonto(pagoNormal.getMontoTotal());
+        } else {
+            dto.setPagoInicialId(null);
+            dto.setPagoInicialMonto(0.0);
+        }
+
+// Calcular penalizaciones pendientes
+        double penalizacionPendiente = cita.getPagos().stream()
+                .filter(p -> p.getTipoPago() == TipoPago.PENALIZACION && !p.isAplicado())
+                .mapToDouble(Pago::getPenalizacion)
+                .sum();
+        dto.setPenalizacionPendiente(penalizacionPendiente);
+
+// Total de pagos
+        double total = cita.getPagos().stream()
+                .mapToDouble(Pago::getMontoTotal)
+                .sum();
+        dto.setTotal(total);
+
+        return dto;
+
     }
+
 
     private double calcularMonto(Cita cita) {
         switch (cita.getTipo()) {
@@ -179,8 +220,46 @@ public class CitaService {
 
     public CitaResponseDTO findByIdWithPagos(int id) {
         Cita cita = citaRepository.findByIdWithPagos(id)
-                .orElseThrow(() -> new CitaNotFoundException("Cita no enconntrada"));
+                .orElseThrow(() -> new CitaNotFoundException("Cita no encontrada"));
 
-        return toResponse(cita);
+        // 🔸 Obtener penalizaciones aplicadas al paciente en citas previas
+        List<Pago> penalizacionesAplicadas = pagoRepository
+                .findPenalizacionesAplicadasPorPaciente(cita.getPaciente().getClave())
+                .stream()
+                .filter(p -> p.isAplicado()) // solo las ya aplicadas
+                .toList();
+
+        // 🔸 Combinar los pagos de la cita actual con penalizaciones previas aplicadas
+        List<Pago> todosPagos = new ArrayList<>();
+
+        // penalizaciones aplicadas antes de esta cita
+        for (Pago p : penalizacionesAplicadas) {
+            if (p.getCita().getIdCitas() != cita.getIdCitas()) {
+                todosPagos.add(p);
+            }
+        }
+
+        // pagos propios de esta cita
+        todosPagos.addAll(cita.getPagos());
+
+        // 🔸 Ordenar: primero penalizaciones, luego pagos normales
+        todosPagos.sort((p1, p2) -> {
+            if (p1.getTipoPago() == TipoPago.PENALIZACION && p2.getTipoPago() != TipoPago.PENALIZACION) return -1;
+            if (p1.getTipoPago() != TipoPago.PENALIZACION && p2.getTipoPago() == TipoPago.PENALIZACION) return 1;
+            return p1.getFecha().compareTo(p2.getFecha());
+        });
+
+        // 🔸 Calcular total
+        double total = todosPagos.stream()
+                .mapToDouble(Pago::getMontoTotal)
+                .sum();
+
+        cita.setPagos(todosPagos);
+
+        CitaResponseDTO dto = CitaMapper.toResponse(cita);
+        dto.setTotal(total);
+        return dto;
     }
+
+
 }

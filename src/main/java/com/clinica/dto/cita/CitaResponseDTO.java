@@ -34,5 +34,6 @@ public class CitaResponseDTO {
     private Integer pagoInicialId;               // id del pago inicial creado al agendar (si aplica)
     private Double pagoInicialMonto;             // monto total del pago inicial (incluye penalizaciones aplicadas)
     private Boolean penalizacionesAplicadas;
+    private double total;
 
 }

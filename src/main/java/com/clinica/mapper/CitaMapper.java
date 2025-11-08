@@ -2,7 +2,11 @@ package com.clinica.mapper;
 
 import com.clinica.dto.cita.CitaRequestDTO;
 import com.clinica.dto.cita.CitaResponseDTO;
+import com.clinica.dto.pago.PagoResponseDTO;
 import com.clinica.model.*;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class CitaMapper {
 
@@ -32,31 +36,42 @@ public class CitaMapper {
         dto.setTipo(cita.getTipo());
         dto.setObservaciones(cita.getObservaciones());
         dto.setEstado(cita.getEstado());
+        dto.setPsicologoId(cita.getPsicologo().getIdPsicologo());
+        dto.setPsicologoNombre(cita.getPsicologo().getUser().getFullName());
+        dto.setPacienteId(cita.getPaciente().getClave());
+        dto.setPacienteNombre(cita.getPaciente().getNombre());
+        dto.setSecretariaNombre(cita.getSecretaria().getUser().getFullName());
 
-        if (cita.getPsicologo() != null) {
-            dto.setPsicologoId(cita.getPsicologo().getIdPsicologo()); // 👈 nuevo
-            if (cita.getPsicologo().getUser() != null) {
-                dto.setPsicologoNombre(cita.getPsicologo().getUser().getFullName());
-            }
+        if (cita.getPagos() != null) {
+            List<PagoResponseDTO> pagosOrdenados = cita.getPagos().stream()
+                    .sorted((p1, p2) -> {
+                        // Primero las penalizaciones
+                        if (p1.getTipoPago() == com.clinica.model.TipoPago.PENALIZACION && p2.getTipoPago() != com.clinica.model.TipoPago.PENALIZACION) return -1;
+                        if (p1.getTipoPago() != com.clinica.model.TipoPago.PENALIZACION && p2.getTipoPago() == com.clinica.model.TipoPago.PENALIZACION) return 1;
+                        // Si ambos son del mismo tipo, ordena por fecha
+                        return p1.getFecha().compareTo(p2.getFecha());
+                    })
+                    .map(CitaMapper::toPagoResponse)
+                    .collect(Collectors.toList());
+
+            dto.setPagos(pagosOrdenados);
+            double total = pagosOrdenados.stream()
+                    .mapToDouble(PagoResponseDTO::getMontoTotal)
+                    .sum();
+            dto.setTotal(total);
         }
 
-        if (cita.getPaciente() != null) {
-            dto.setPacienteId(cita.getPaciente().getClave()); // 👈 nuevo
-            dto.setPacienteNombre(cita.getPaciente().getNombre());
-        }
+        return dto;
+    }
 
-        if (cita.getSecretaria() != null && cita.getSecretaria().getUser() != null) {
-            dto.setSecretariaNombre(cita.getSecretaria().getUser().getFullName());
-        }
 
-        if (cita.getPagos() != null && !cita.getPagos().isEmpty()) {
-            dto.setPagos(
-                    cita.getPagos().stream()
-                            .map(PagoMapper::toResponse)
-                            .toList()
-            );
-        }
-
+    private static PagoResponseDTO toPagoResponse(Pago pago) {
+        PagoResponseDTO dto = new PagoResponseDTO();
+        dto.setIdPagos(pago.getIdPagos());
+        dto.setTipoPago(pago.getTipoPago());
+        dto.setMontoTotal(pago.getMontoTotal());
+        dto.setFecha(pago.getFecha());
+        dto.setMotivo(pago.getMotivo());
         return dto;
     }
 
