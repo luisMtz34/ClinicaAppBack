@@ -38,7 +38,7 @@ public class PagoService {
         pago.setAplicado(false);
         pago.setCita(cita);
 
-        pagoRepository.save(pago);
+        pagoRepository.saveAndFlush(pago);
         return PagoMapper.toResponse(pago);
     }
 

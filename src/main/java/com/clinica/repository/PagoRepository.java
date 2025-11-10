@@ -12,7 +12,7 @@ import java.util.Optional;
 
 public interface PagoRepository extends JpaRepository<Pago, Integer> {
     List<Pago> findByCita(Cita cita);
-    List<Pago> findByCita_IdCitas(Integer citaId);
+    List<Pago> findByCita_IdCitas(int citaId);
 
 
 }
