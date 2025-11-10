@@ -13,6 +13,13 @@ import java.util.Optional;
 public interface PagoRepository extends JpaRepository<Pago, Integer> {
     List<Pago> findByCita(Cita cita);
     List<Pago> findByCita_IdCitas(int citaId);
+    @Query("""
+        SELECT p FROM Pago p
+        WHERE p.cita.paciente.clave = :pacienteClave
+        AND p.tipoPago = 'PENALIZACION'
+        AND p.aplicado = false
+        """)
+    List<Pago> findPenalizacionesPendientesPorPaciente(@Param("pacienteClave") String pacienteClave);
 
 
 }

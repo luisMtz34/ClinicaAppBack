@@ -19,7 +19,7 @@ public class Pago {
     private LocalDateTime fecha;
     private double montoTotal;
     private double comisionClinica;
-    private int penalizacion;
+    private double penalizacion;
     @Column(name = "motivot")
     private String motivo;
     @Column(name = "tipopa")

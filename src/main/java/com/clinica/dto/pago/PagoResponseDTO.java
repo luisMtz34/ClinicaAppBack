@@ -12,7 +12,7 @@ public class PagoResponseDTO {
     private LocalDateTime fecha;
     private double montoTotal;
     private double comisionClinica;
-    private int penalizacion;
+    private double penalizacion;
     private String motivo;
     private TipoPago tipoPago;
     private String observaciones;

@@ -7,7 +7,7 @@ import lombok.Data;
 public class PagoRequestDTO {
     private double montoTotal;
     private int comisionClinica;
-    private int penalizacion;
+    private double penalizacion;
     private String motivo;
     private String observaciones;
     private TipoPago tipoPago;
