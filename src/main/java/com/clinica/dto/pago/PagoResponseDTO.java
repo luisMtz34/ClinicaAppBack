@@ -24,4 +24,8 @@ public class PagoResponseDTO {
     private String fechaCita;
     private String horaCita;
 
+    private String pacienteId;      // String porque clave del paciente
+    private Long psicologoId;       // Long porque idPsicologo
+
+
 }

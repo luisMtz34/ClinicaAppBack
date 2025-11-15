@@ -16,20 +16,26 @@ public class PagoMapper {
         dto.setTipoPago(pago.getTipoPago());
         dto.setObservaciones(pago.getObservaciones());
         dto.setAplicado(pago.isAplicado());
-        dto.setCitaId(pago.getCita().getIdCitas());
+
         if (pago.getCita() != null) {
             Cita c = pago.getCita();
             dto.setCitaId(c.getIdCitas());
-            dto.setNombrePaciente(c.getPaciente() != null ? c.getPaciente().getNombre() : null);
-            dto.setNombrePsicologo(c.getPsicologo() != null ? c.getPsicologo().getUser().getFullName() : null);
-            if (c.getFecha() != null) {
-                dto.setFechaCita(c.getFecha().toString());
+
+            if (c.getPaciente() != null) {
+                dto.setNombrePaciente(c.getPaciente().getNombre());
+                dto.setPacienteId(c.getPaciente().getClave());  // <--- ID paciente
             }
-            if (c.getHora() != null) {
-                dto.setHoraCita(c.getHora().toString());
+
+            if (c.getPsicologo() != null) {
+                dto.setNombrePsicologo(c.getPsicologo().getUser().getFullName());
+                dto.setPsicologoId(c.getPsicologo().getIdPsicologo());  // <--- ID psicologo
             }
+
+            if (c.getFecha() != null) dto.setFechaCita(c.getFecha().toString());
+            if (c.getHora() != null) dto.setHoraCita(c.getHora().toString());
         }
 
         return dto;
     }
+
 }

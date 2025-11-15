@@ -2,10 +2,9 @@ package com.clinica.controller;
 
 import com.clinica.dto.cita.CitaRequestDTO;
 import com.clinica.dto.cita.CitaResponseDTO;
-import com.clinica.model.Cita;
 import com.clinica.model.Estado;
 import com.clinica.service.CitaService;
-import com.clinica.service.FiltrosService;
+import com.clinica.service.PagoService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -20,11 +19,10 @@ import java.util.List;
 public class CitaController {
 
     private final CitaService citaService;
-    private final FiltrosService filtrosService;
 
-    public CitaController(CitaService citaService, FiltrosService filtrosService) {
+
+    public CitaController(CitaService citaService) {
         this.citaService = citaService;
-        this.filtrosService = filtrosService;
     }
 
     // === Registrar nueva cita ===
@@ -54,6 +52,5 @@ public class CitaController {
         CitaResponseDTO dto = citaService.cambiarEstadoCita(id, estado);
         return ResponseEntity.ok(dto);
     }
-
 
 }

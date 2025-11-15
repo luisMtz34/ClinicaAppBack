@@ -2,13 +2,17 @@ package com.clinica.controller;
 
 import com.clinica.dto.pago.PagoRequestDTO;
 import com.clinica.dto.pago.PagoResponseDTO;
+import com.clinica.model.TipoPago;
 import com.clinica.service.PagoService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 @RestController
@@ -43,5 +47,6 @@ public class PagoController {
     public ResponseEntity<List<PagoResponseDTO>> listarPagosPorCita(@PathVariable int idCita) {
         return ResponseEntity.ok(pagoService.listarPagosPorCita(idCita));
     }
+
 
 }
