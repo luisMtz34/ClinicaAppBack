@@ -4,7 +4,6 @@ import com.clinica.dto.cita.CitaRequestDTO;
 import com.clinica.dto.cita.CitaResponseDTO;
 import com.clinica.model.Estado;
 import com.clinica.service.CitaService;
-import com.clinica.service.PagoService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -25,7 +24,6 @@ public class CitaController {
         this.citaService = citaService;
     }
 
-    // === Registrar nueva cita ===
     @PostMapping("/registrar")
     public ResponseEntity<CitaResponseDTO> registrarCita(@RequestBody CitaRequestDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -52,5 +50,6 @@ public class CitaController {
         CitaResponseDTO dto = citaService.cambiarEstadoCita(id, estado);
         return ResponseEntity.ok(dto);
     }
+
 
 }

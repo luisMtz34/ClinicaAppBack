@@ -5,5 +5,6 @@ public enum Estado {
     NO_ASISTIO,
     ATENDIDA,
     CONFIRMADA,
-    CANCELADA
+    CANCELADA,
+    REAGENDADA
 }

@@ -20,6 +20,7 @@ public interface CitaRepository extends JpaRepository<Cita, Integer> {
     List<Cita> findByFechaBetween(LocalDate inicio, LocalDate fin);
 
     boolean existsByPacienteAndFecha(Paciente paciente, LocalDate fecha);
+    boolean existsByPacienteAndFechaAndEstadoNot(Paciente paciente, LocalDate fecha, Estado estado);
 
     @Query("SELECT c FROM Cita c LEFT JOIN FETCH c.pagos WHERE c.idCitas = :id")
     Optional<Cita> findByIdWithPagos(@Param("id") int id);

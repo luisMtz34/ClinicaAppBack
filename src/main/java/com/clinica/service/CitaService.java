@@ -55,7 +55,11 @@ public class CitaService {
 
         Cita cita = CitaMapper.toEntity(dto, psicologo, paciente, secretaria);
 
-        boolean citaExiste = citaRepository.existsByPacienteAndFecha(cita.getPaciente(), cita.getFecha());
+        boolean citaExiste = citaRepository.existsByPacienteAndFechaAndEstadoNot(
+                cita.getPaciente(),
+                cita.getFecha(),
+                Estado.REAGENDADA);
+
         if (citaExiste) {
             throw new CitaDuplicadaException("El paciente ya tiene una cita registrada en esta fecha");
         }
@@ -111,7 +115,5 @@ public class CitaService {
         cita.setPagos(pagoRepository.findByCita(cita));
         return CitaMapper.toResponse(cita);
     }
-
-
 
 }
