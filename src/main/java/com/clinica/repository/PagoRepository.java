@@ -16,7 +16,9 @@ import java.util.List;
 public interface PagoRepository extends JpaRepository<Pago, Integer> {
     List<Pago> findByCita(Cita cita);
 
-    List<Pago> findByCita_IdCitas(int citaId);
+    List<Pago> findAllByOrderByIdPagosDesc();
+
+    List<Pago> findByCita_IdCitasOrderByIdPagosDesc(int citaId);
 
     @Query("""
             SELECT p FROM Pago p
@@ -25,5 +27,18 @@ public interface PagoRepository extends JpaRepository<Pago, Integer> {
             AND p.aplicado = false
             """)
     List<Pago> findPenalizacionesPendientesPorPaciente(@Param("pacienteClave") String pacienteClave);
+
+    List<Pago> findByCitaPacienteClaveAndTipoPagoAndAplicadoFalse(
+            String clave,
+            TipoPago tipoPago
+    );
+
+    @Query("""
+       SELECT p FROM Pago p
+       WHERE p.cita.psicologo.user.email = :email
+       ORDER BY p.idPagos DESC
+       """)
+    List<Pago> findByPsicologoEmail(@Param("email") String email);
+
 
 }

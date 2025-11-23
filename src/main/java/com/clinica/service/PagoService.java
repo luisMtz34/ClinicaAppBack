@@ -81,17 +81,29 @@ public class PagoService {
     }
 
     public List<PagoResponseDTO> listarPagos() {
-        return pagoRepository.findAll()
+        return pagoRepository.findAllByOrderByIdPagosDesc()
                 .stream()
                 .map(PagoMapper::toResponse)
                 .toList();
     }
 
     public List<PagoResponseDTO> listarPagosPorCita(int idCita) {
-        return pagoRepository.findByCita_IdCitas(idCita)
+        return pagoRepository.findByCita_IdCitasOrderByIdPagosDesc(idCita)
                 .stream()
                 .map(PagoMapper::toResponse)
                 .collect(Collectors.toList());
     }
+
+    public List<PagoResponseDTO> obtenerPenalizacionesPendientes(String pacienteId) {
+
+        // Traer TODAS las penalizaciones de ese paciente
+        List<Pago> penalizaciones = pagoRepository
+                .findByCitaPacienteClaveAndTipoPagoAndAplicadoFalse(pacienteId, TipoPago.PENALIZACION);
+
+        return penalizaciones.stream()
+                .map(PagoMapper::toResponse)
+                .toList();
+    }
+
 
 }

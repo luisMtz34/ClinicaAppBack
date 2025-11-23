@@ -58,7 +58,7 @@ public class CitaService {
         boolean citaExiste = citaRepository.existsByPacienteAndFechaAndEstadoNot(
                 cita.getPaciente(),
                 cita.getFecha(),
-                Estado.REAGENDADA);
+                Estado.CANCELADA);
 
         if (citaExiste) {
             throw new CitaDuplicadaException("El paciente ya tiene una cita registrada en esta fecha");
@@ -80,9 +80,9 @@ public class CitaService {
                 .orElseThrow(() -> new CitaNotFoundException("Cita no encontrada"));
 
         // 🚫 No se puede modificar una cita atendida o cancelada
-        if (cita.getEstado() == Estado.ATENDIDA || cita.getEstado() == Estado.CANCELADA) {
+        if (cita.getEstado() == Estado.ATENDIDA) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "No se puede modificar una cita que ya fue atendida o cancelada");
+                    "No se puede modificar una cita que ya fue atendida");
         }
 
         Psicologo psicologo = psicologoRepo.findById(dto.getPsicologoId())
@@ -115,5 +115,35 @@ public class CitaService {
         cita.setPagos(pagoRepository.findByCita(cita));
         return CitaMapper.toResponse(cita);
     }
+
+    public CitaResponseDTO obtenerCitaPorId(int id) {
+        var cita = citaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Cita no encontrada"));
+
+        return CitaMapper.toResponse(cita);
+    }
+
+    public List<CitaResponseDTO> obtenerCitasPorPsicologo(String emailPsicologo) {
+
+        List<Cita> citas = citaRepository.findByPsicologoEmail(emailPsicologo);
+
+        return citas.stream()
+                .map(CitaMapper::toResponse)
+                .toList();
+    }
+
+    public void validarPropietarioDeCita(int idCita, String emailPsicologo) {
+        Psicologo psicologo = psicologoRepo.findByUser_Email(emailPsicologo)
+                .orElseThrow(() -> new RuntimeException("Psicólogo no encontrado"));
+
+        Cita cita = citaRepository.findById(idCita)
+                .orElseThrow(() -> new RuntimeException("Cita no encontrada"));
+
+        if (!cita.getPsicologo().getIdPsicologo().equals(psicologo.getIdPsicologo())) {
+            throw new RuntimeException("No tienes permiso para ver esta cita");
+        }
+    }
+
+
 
 }

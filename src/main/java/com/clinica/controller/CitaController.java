@@ -50,6 +50,12 @@ public class CitaController {
         CitaResponseDTO dto = citaService.cambiarEstadoCita(id, estado);
         return ResponseEntity.ok(dto);
     }
+    // === Obtener una cita por ID ===
+    @GetMapping("/{id}")
+    public ResponseEntity<CitaResponseDTO> obtenerCitaPorId(@PathVariable int id) {
+        CitaResponseDTO cita = citaService.obtenerCitaPorId(id);
+        return ResponseEntity.ok(cita);
+    }
 
 
 }

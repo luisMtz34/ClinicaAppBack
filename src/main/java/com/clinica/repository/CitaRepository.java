@@ -25,4 +25,11 @@ public interface CitaRepository extends JpaRepository<Cita, Integer> {
     @Query("SELECT c FROM Cita c LEFT JOIN FETCH c.pagos WHERE c.idCitas = :id")
     Optional<Cita> findByIdWithPagos(@Param("id") int id);
 
+    @Query("""
+       SELECT c FROM Cita c
+       WHERE c.psicologo.user.email = :email
+       ORDER BY c.fecha ASC, c.hora ASC
+       """)
+    List<Cita> findByPsicologoEmail(@Param("email") String email);
+
 }

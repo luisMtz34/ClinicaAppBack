@@ -48,5 +48,13 @@ public class PagoController {
         return ResponseEntity.ok(pagoService.listarPagosPorCita(idCita));
     }
 
+    @GetMapping("/penalizaciones/{pacienteId}")
+    public ResponseEntity<List<PagoResponseDTO>> obtenerPenalizacionesPendientes(
+            @PathVariable String pacienteId
+    ) {
+        List<PagoResponseDTO> pendientes = pagoService.obtenerPenalizacionesPendientes(pacienteId);
+        return ResponseEntity.ok(pendientes);
+    }
+
 
 }
