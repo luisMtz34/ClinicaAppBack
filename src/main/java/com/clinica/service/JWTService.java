@@ -23,6 +23,7 @@ public class JWTService {
     public String generateToken(User user) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("rol", user.getRol().name());
+        claims.put("nombre", user.getFullName());
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(user.getEmail())
@@ -42,6 +43,9 @@ public class JWTService {
                 .compact();
     }
 
+    public String extractNombre(String token) {
+        return extractClaim(token, claims -> claims.get("nombre", String.class));
+    }
 
     public String extractRol(String token) {
         return extractClaim(token, claims -> claims.get("rol", String.class));
