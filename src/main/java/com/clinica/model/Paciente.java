@@ -37,4 +37,6 @@ public class Paciente {
 
     @OneToMany(mappedBy = "paciente")
     private List<Cita> citas;
+
+
 }

@@ -8,24 +8,43 @@ import com.clinica.model.Estado;
 import com.clinica.model.Paciente;
 import com.clinica.repository.PacienteRepository;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.security.SecureRandom;
 import java.util.List;
+import java.util.Random;
 
 import static com.clinica.mapper.PacienteMapper.toEntity;
 import static com.clinica.mapper.PacienteMapper.toResponse;
 
 @Service
+@RequiredArgsConstructor
 public class PacienteService {
 
     private final PacienteRepository pacienteRepo;
+    private final SecureRandom random = new SecureRandom();
+    private static final String ALFABETO = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
-    public PacienteService(PacienteRepository pacienteRepo) {
-        this.pacienteRepo = pacienteRepo;
+    private String generarClaveUnica() {
+        String clave;
+
+        do {
+            StringBuilder sb = new StringBuilder(3);
+            for (int i = 0; i < 3; i++) {
+                int index = random.nextInt(ALFABETO.length());
+                sb.append(ALFABETO.charAt(index));
+            }
+            clave = sb.toString();
+
+        } while (pacienteRepo.existsById(clave));
+
+        return clave;
     }
 
     public PacienteResponse registrarPaciente(PacienteRequest pacienteDto) {
         Paciente entity = toEntity(pacienteDto);
+        entity.setClave(generarClaveUnica());
         entity.setEstado(Estado.ACTIVO);
         Paciente saved = pacienteRepo.save(entity);
         return toResponse(saved);

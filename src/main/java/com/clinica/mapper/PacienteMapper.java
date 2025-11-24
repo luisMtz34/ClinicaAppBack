@@ -8,7 +8,7 @@ import com.clinica.model.Paciente;
 public class PacienteMapper {
     public static Paciente toEntity(PacienteRequest pacienteRequest){
         Paciente paciente = new Paciente();
-        paciente.setClave(pacienteRequest.getClave());
+
         paciente.setNombre(pacienteRequest.getNombre());
         paciente.setFechaNac(pacienteRequest.getFechaNac());
         paciente.setSexo(pacienteRequest.getSexo());
@@ -20,7 +20,6 @@ public class PacienteMapper {
         return paciente;
     }
 
-
     public static PacienteResponse toResponse(Paciente entity){
         PacienteResponse response = new PacienteResponse();
         response.setClave(entity.getClave());
@@ -31,9 +30,8 @@ public class PacienteMapper {
         response.setContacto(entity.getContacto());
         response.setParentesco(entity.getParentesco());
         response.setTelefonoCp(entity.getTelefonoCp());
-        response.setEstado(Estado.ACTIVO);
+        response.setEstado(entity.getEstado()); // ← CORREGIDO
 
         return response;
     }
-
 }
