@@ -8,6 +8,8 @@ import com.clinica.repository.PagoRepository;
 import com.clinica.repository.PsicologoRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -44,4 +46,12 @@ public class PagoPsicologoService {
                 .map(PagoMapper::toResponse)
                 .toList();
     }
+    public List<PagoResponseDTO> obtenerPagosPorFecha(String emailPsicologo, LocalDate fecha) {
+        List<Pago> pagos = pagoRepository.findPagosPorPsicologoYFecha(emailPsicologo, fecha);
+        return pagos.stream().map(PagoMapper::toResponse).toList();
+    }
+
+
+
+
 }

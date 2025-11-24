@@ -9,7 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -33,12 +33,18 @@ public interface PagoRepository extends JpaRepository<Pago, Integer> {
             TipoPago tipoPago
     );
 
+
     @Query("""
-       SELECT p FROM Pago p
-       WHERE p.cita.psicologo.user.email = :email
-       ORDER BY p.idPagos DESC
-       """)
-    List<Pago> findByPsicologoEmail(@Param("email") String email);
+    SELECT p FROM Pago p
+    WHERE p.cita.psicologo.user.email = :email
+    AND FUNCTION('DATE', p.fecha) = :fecha
+    ORDER BY p.idPagos DESC
+""")
+    List<Pago> findPagosPorPsicologoYFecha(
+            @Param("email") String email,
+            @Param("fecha") LocalDate fecha
+    );
+
 
 
 }
