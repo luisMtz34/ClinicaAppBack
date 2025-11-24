@@ -40,4 +40,11 @@ public class PsicologoController {
         return ResponseEntity.ok(psicologoService.actPsicologo(id, dto));
     }
 
+    @PutMapping("/{id}/desactivar")
+    public ResponseEntity<String> desactivarPsicologo(@PathVariable Long id) {
+        psicologoService.desactivarPsicologo(id);
+        return ResponseEntity.ok("Psicólogo desactivado correctamente");
+    }
+
+
 }

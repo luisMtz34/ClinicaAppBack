@@ -4,6 +4,7 @@ import com.clinica.dto.psicologo.PsicologoRequest;
 import com.clinica.dto.psicologo.PsicologoResponse;
 import com.clinica.exceptions.PsicologoNotFoundException;
 import com.clinica.mapper.PsicologoMapper;
+import com.clinica.model.Estado;
 import com.clinica.model.Psicologo;
 import com.clinica.model.Rol;
 import com.clinica.model.User;
@@ -46,7 +47,7 @@ public class PsicologoService {
     }
 
     public List<PsicologoResponse> obtenenerPsicologos() {
-        List<Psicologo> psicologos =    psicologoRepo.findAll();
+        List<Psicologo> psicologos =    psicologoRepo.findByEstado(Estado.ACTIVO);
 
         return psicologos.stream()
                 .map(PsicologoMapper::toResponse)
@@ -74,5 +75,16 @@ public class PsicologoService {
         psicologoRepo.save(psicologo);
         return toResponse(psicologo);
     }
+
+    @Transactional
+    public void desactivarPsicologo(Long id) {
+        Psicologo psicologo = psicologoRepo.findById(id)
+                .orElseThrow(() -> new PsicologoNotFoundException(
+                        "Psicólogo no encontrado con id " + id));
+
+        psicologo.setEstado(Estado.INACTIVO);
+        psicologoRepo.save(psicologo);
+    }
+
 
 }

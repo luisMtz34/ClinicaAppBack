@@ -41,4 +41,11 @@ public class PacienteController {
             @RequestBody PacienteRequest dto) {
         return ResponseEntity.ok(pacienteService.actPaciente(clave, dto));
     }
+
+    @PutMapping("/{clave}/desactivar")
+    public ResponseEntity<String> desactivarPaciente(@PathVariable String clave) {
+        pacienteService.desactivarPaciente(clave);
+        return ResponseEntity.ok("Paciente desactivado correctamente");
+    }
+
 }

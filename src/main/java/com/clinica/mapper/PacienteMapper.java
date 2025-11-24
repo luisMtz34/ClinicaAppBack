@@ -30,7 +30,7 @@ public class PacienteMapper {
         response.setContacto(entity.getContacto());
         response.setParentesco(entity.getParentesco());
         response.setTelefonoCp(entity.getTelefonoCp());
-        response.setEstado(entity.getEstado()); // ← CORREGIDO
+        response.setEstado(entity.getEstado());
 
         return response;
     }

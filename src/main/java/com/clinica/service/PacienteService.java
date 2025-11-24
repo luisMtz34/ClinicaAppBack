@@ -68,10 +68,22 @@ public class PacienteService {
     }
 
     public List<PacienteResponse> obtenerPacientes() {
-        List<Paciente> pacientes = pacienteRepo.findAll();
-        return pacientes.stream()
+        return pacienteRepo.findByEstado(Estado.ACTIVO)
+                .stream()
                 .map(PacienteMapper::toResponse)
                 .toList();
     }
+
+
+    @Transactional
+    public void desactivarPaciente(String clave) {
+        Paciente paciente = pacienteRepo.findById(clave)
+                .orElseThrow(() -> new PacienteNotFoundException("Paciente no encontrado"));
+
+        paciente.setEstado(Estado.INACTIVO);
+
+        pacienteRepo.save(paciente);
+    }
+
 
 }
