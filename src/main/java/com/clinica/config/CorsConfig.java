@@ -18,10 +18,12 @@ public class CorsConfig {
         CorsConfiguration configuration = new CorsConfiguration();
 
         // Frontend permitido
-        configuration.setAllowedOrigins(Arrays.asList("http://127.0.0.1:5500"));
-        configuration.setAllowedMethods(Arrays.asList("GET","POST","PUT","DELETE","OPTIONS"));
+        configuration.setAllowedOrigins(Arrays.asList(
+                "https://clinicaappfront.onrender.com"  // tu frontend
+        ));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
-        configuration.setAllowCredentials(true);  // ⚠️ Importante
+        configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
