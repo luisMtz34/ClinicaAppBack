@@ -1,0 +1,32 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: postgres:15.3
+    container_name: clinica-db
+    environment:
+      POSTGRES_DB: clinica-db
+      POSTGRES_USER: jhonson
+      POSTGRES_PASSWORD: 1234
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: clinica-app
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/clinica-db
+      SPRING_DATASOURCE_USERNAME: jhonson
+      SPRING_DATASOURCE_PASSWORD: 1234
+      JWT_SECRET: qzBQupFSW19kYjGfHzZucQAM7WyWqNaIny8vS2eQOgg
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_data:
